@@ -3,6 +3,7 @@
 import cmd
 import shlex
 import models
+import re
 
 from models.base_model import BaseModel
 from models.amenity import Amenity
@@ -16,7 +17,6 @@ from models.user import User
 class HBNBCommand(cmd.Cmd):
     """The Console class of our HBNB project."""
     prompt = "(hbnb) "
-    file = None
 
     errors = {
         "missingClass": "** class name missing **",
@@ -149,13 +149,48 @@ class HBNBCommand(cmd.Cmd):
                                 attr_type = type(getattr(obj, args[2]))
                                 args[3] = attr_type(args[3])
                             except:
-                                pass
+                                try:
+                                    args[3] = int(args[3])
+                                except:
+                                    try:
+                                        args[3] = float(args[3])
+                                    except:
+                                        pass
+
                             setattr(obj, args[2], args[3])
                             obj.save()
                 else:
                     print(self.errors["wrongID"])
         else:
             print(self.errors["wrongClass"])
+
+    def do_count(self, arg):
+        """
+        Prints the number of instances of a class.
+            usage: count <class_name>
+        """
+        args = shlex.split(arg)
+        models.storage.reload()
+        if len(args) < 1:
+            print(self.errors["missingClass"])
+        elif args[0] in self.classes:
+            instances = str(models.storage.all().keys())
+            print(instances.count(args[0]))
+        else:
+            print(self.errors["wrongClass"])
+
+    def default(self, line):
+        """Handles the default behaviour."""
+        try:
+            cmd = line.split('.', 1)
+            class_name = cmd[0]
+            args = cmd[1].strip("()").split('(')
+            func = str("self.do_" + args[0])
+            params = class_name + ' ' + \
+                args[1].replace(',', '') if len(args) > 1 else class_name
+            eval(func)(params)
+        except Exception as e:
+            print("*** Unknown syntax: {}".format(line))
 
 
 if __name__ == "__main__":
