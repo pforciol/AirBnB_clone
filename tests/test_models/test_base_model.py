@@ -10,13 +10,16 @@ class Test_BaseModel___init__(TestCase):
     """Test cases for BaseModel's __init__ method."""
 
     def test_BaseModel___init___no_args(self):
-        """Tests __init__ in normal conditions."""
+        """Tests __init__ in basic conditions."""
         self.assertEqual(type(BaseModel()), BaseModel)
 
-    def test_BaseModel___init___too_many_args(self):
-        """Tests __init__ with expected failure."""
-        with self.assertRaises(TypeError):
-            BaseModel(42)
+    def test_BaseModel___init___dict_input(self):
+        """Tests __init__ with dict as input."""
+        created_at = datetime.now()
+        model = BaseModel(42, id="t3sT", created_at=created_at.isoformat())
+        self.assertEqual(type(BaseModel()), BaseModel)
+        self.assertEqual(model.id, "t3sT")
+        self.assertEqual(model.created_at, created_at)
 
 
 class Test_BaseModel_id(TestCase):
@@ -57,11 +60,6 @@ class Test_BaseModel_updated_at(TestCase):
     def test_BaseModel_updated_at_datetime(self):
         """Tests if updated_at initialization is datetime."""
         self.assertEqual(type(BaseModel().updated_at), datetime)
-
-    def test_BaseModel_updated_at_same_as_created_at(self):
-        """Tests if updated_at is equal to created_at on initialization."""
-        model = BaseModel()
-        self.assertEqual(model.updated_at, model.created_at)
 
 
 class Test_BaseModel___str__(TestCase):
