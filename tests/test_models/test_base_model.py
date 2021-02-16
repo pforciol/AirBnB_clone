@@ -1,114 +1,201 @@
 #!/usr/bin/python3
-"""This is the base_model.py unittest module."""
-from unittest import TestCase
+"""
+    UnitTest for BaseModel
+"""
+import unittest
 from datetime import datetime
-
 from models.base_model import BaseModel
+import re
+from unittest.mock import patch
 
 
-class Test_BaseModel___init__(TestCase):
-    """Test cases for BaseModel's __init__ method."""
+class TestBase_model(unittest.TestCase):
 
-    def test_BaseModel___init___no_args(self):
-        """Tests __init__ in basic conditions."""
-        self.assertEqual(type(BaseModel()), BaseModel)
+    """Basic instanciation object__init__"""
 
-    def test_BaseModel___init___dict_input(self):
-        """Tests __init__ with dict as input."""
-        created_at = datetime.now()
-        model = BaseModel(42, id="t3sT", created_at=created_at.isoformat())
-        self.assertEqual(type(BaseModel()), BaseModel)
-        self.assertEqual(model.id, "t3sT")
-        self.assertEqual(model.created_at, created_at)
+    def test_is_id_created(self):
+        """ Test id created """
+        obj = BaseModel()
+        self.assertTrue(obj.id is not None)
 
+    def test_class_type(self):
+        """ Test class type """
+        obj = BaseModel()
+        self.assertTrue(type(obj) is BaseModel)
 
-class Test_BaseModel_id(TestCase):
-    """Test cases for BaseModel's id attribute."""
+    def test_attributes_type(self):
+        """Test attr types"""
+        b = BaseModel()
+        b.name = "empty"
+        b.age = 13
+        self.assertEqual(type(b.id), str)
+        self.assertEqual(type(b.created_at), datetime)
+        self.assertEqual(type(b.updated_at), datetime)
 
-    def test_BaseModel_id(self):
-        """Tests basic id initialization."""
-        self.assertIsNotNone(BaseModel().id)
+    def test_datetime(self):
+        """Test date different"""
+        before = datetime.now()
+        b = BaseModel()
+        after = datetime.now()
+        self.assertEqual(b.created_at, b.updated_at)
+        self.assertTrue(before <= b.created_at <= after)
+        n_b = BaseModel()
+        self.assertNotEqual(b.created_at,  n_b.created_at)
 
-    def test_BaseModel_id_string(self):
-        """Tests if id initialization is string."""
-        self.assertEqual(type(BaseModel().id), str)
+    def test_to_dict(self):
+        """test attributes types in dict"""
+        b = BaseModel()
+        b.name = "Mark"
+        b.age = 12
+        dict_base = b.to_dict()
+        self.assertEqual(dict_base['updated_at'], b.updated_at.isoformat())
+        self.assertEqual(dict_base['__class__'], "BaseModel")
+        self.assertEqual(dict_base['name'], "Mark")
+        self.assertEqual(dict_base['age'], 12)
+        self.assertEqual(dict_base['created_at'], b.created_at.isoformat())
 
-    def test_BaseModel_id_random(self):
-        """Tests if id initialization is random."""
-        self.assertNotEqual(BaseModel().id, BaseModel().id)
+    def test_value_attr_type(self):
+        b = BaseModel()
+        b.name = "empty"
+        b.age = 13
+        f = "%Y-%m-%dT%H:%M:%S.%f"
+        d = b.to_dict()
+        self.assertEqual(d['created_at'], b.created_at.strftime(f))
+        self.assertEqual(d['updated_at'], b.updated_at.strftime(f))
+        self.assertEqual("empty", b.name)
+        self.assertEqual(13, b.age)
 
+    def test_is_id_is_string(self):
+        """Test id is a string"""
+        obj = BaseModel()
+        self.assertEqual(type(obj.id), str)
 
-class Test_BaseModel_created_at(TestCase):
-    """Test cases for BaseModel's created_at attribute."""
+    def test_is_id_different_multiple_instance(self):
+        """ Test that id is different with two instance object """
+        obj = BaseModel()
+        obj2 = BaseModel()
+        self.assertNotEqual(obj.id, obj2.id)
 
-    def test_BaseModel_created_at(self):
-        """Tests basic created_at initialization."""
-        self.assertIsNotNone(BaseModel().created_at)
+    def test_is__created_date_is_created(self):
+        """ Test that a date has been well created """
+        obj = BaseModel()
+        self.assertTrue(obj.created_at is not None)
 
-    def test_BaseModel_created_at_datetime(self):
-        """Tests if created_at initialization is datetime."""
-        self.assertEqual(type(BaseModel().created_at), datetime)
+    def test_uuid(self):
+        """ test uuid diff"""
+        b1 = BaseModel()
+        b2 = BaseModel()
+        self.assertNotEqual(b1.id, b2.id)
 
+    def test_is_created_date_is_created(self):
+        """ Test that a date has been well created """
+        obj = BaseModel()
+        obj2 = BaseModel()
+        d1 = obj.created_at
+        d2 = obj.created_at
+        self.assertTrue(d1 is not None and d2 is not None)
 
-class Test_BaseModel_updated_at(TestCase):
-    """Test cases for BaseModel's updated_at attribute."""
+    def test_is__created_date_is_object_datatime(self):
+        """ Test that created_at is a object date"""
+        obj = BaseModel()
+        self.assertEqual(type(obj.created_at), datetime)
 
-    def test_BaseModel_updated_at(self):
-        """Tests basic updated_at initialization."""
-        self.assertIsNotNone(BaseModel().updated_at)
+    def test_is_updated_at_is_created(self):
+        """ Test that updated_at attribute has been well created """
+        obj = BaseModel()
+        self.assertTrue(obj.updated_at is not None)
 
-    def test_BaseModel_updated_at_datetime(self):
-        """Tests if updated_at initialization is datetime."""
-        self.assertEqual(type(BaseModel().updated_at), datetime)
+    def test_is_updated_at_is_created_multiple_instance(self):
+        """ Test that updated_at attribute
+        has been well created with multiple instance"""
+        obj = BaseModel()
+        obj2 = BaseModel()
+        d1 = obj.updated_at
+        d2 = obj.updated_at
+        self.assertTrue(d1 is not None and d2 is not None)
 
+    def test_is_updated_at_is_object_datatime(self):
+        """ Test that updated_at is a object date"""
+        obj = BaseModel()
+        self.assertEqual(type(obj.updated_at), datetime)
 
-class Test_BaseModel___str__(TestCase):
-    """Test cases for BaseModel's __str__ method."""
+    """
+        kwargs
+    """
+    """
+    def test_is_kwargs_instance(self):
+        obj = BaseModel()
+        save_dict = obj.to_dict()
+        new_obj = BaseModel(**save_dict)
+        self.assertTrue(save_dict == new_obj.to_dict())
+    """
 
-    def test_BaseModel___str__(self):
-        """Tests basic __str__ call."""
-        self.assertIsNotNone(BaseModel().__str__)
+    def test_is_kwargs_created_at_date_object(self):
+        """ Test that kwargs is instance created_at to date object """
+        obj = BaseModel()
+        save_dict = obj.to_dict()
+        new_obj = BaseModel(**save_dict)
+        self.assertEqual(type(new_obj.created_at), datetime)
+    """
+    def test_is_kwargs_ignore_one_attribute(self):
+        obj = BaseModel()
+        save_dict = obj.to_dict()
+        new_obj = BaseModel(**save_dict)
+        with self.assertRaises(AttributeError):
+            new_obj.__class__
+    """
+    """
+    Method to_dict()
+    """
 
+    def test_is_to_dict_return_a_dict(self):
+        """ Test that the to_dict() method return well a dictionnary """
+        obj = BaseModel()
+        s = obj.to_dict()
+        self.assertEqual(type(s), dict)
 
-class Test_BaseModel_save(TestCase):
-    """Test cases for BaseModel's save method."""
+    def test_is_to_dict_created_at_is_str(self):
+        """ Test that to_dict() created_at is str in dictionary"""
+        obj = BaseModel()
+        s = obj.to_dict()
+        for i in s:
+            if i == "created_at":
+                self.assertEqual(type(s[i]), str)
 
-    def test_BaseModel_save_no_args(self):
-        """Tests save in normal conditions."""
-        model = BaseModel()
-        model.save()
-        self.assertNotEqual(model.updated_at, model.created_at)
+    def test_is_to_dict_updated_at_is_str(self):
+        """ Test that to_dict() updated_at is str in dictionary"""
+        obj = BaseModel()
+        s = obj.to_dict()
+        for i in s:
+            if i == "updated_at":
+                self.assertEqual(type(s[i]), str)
 
-    def test_BaseModel_save_too_many_args(self):
-        """Tests save with expected failure."""
-        with self.assertRaises(TypeError):
-            BaseModel().save(42)
+    """
+        Method __str__
+    """
 
+    def test_is_str_return_a_string(self):
+        """ Test that __str__return well a string """
+        obj = BaseModel()
+        s = str(obj)
+        self.assertEqual(type(s), str)
 
-class Test_BaseModel_to_dict(TestCase):
-    """Test cases for BaseModel's to_dict method."""
-
-    def test_BaseModel_to_dict_no_args(self):
-        """Tests to_dict in normal conditions."""
-        self.assertIsNotNone(BaseModel().to_dict())
-
-    def test_BaseModel_to_dict_no_args(self):
-        """Tests if to_dict returns a dict."""
-        self.assertEqual(type(BaseModel().to_dict()), dict)
-
-    # def test_BaseModel_to_dict___class___presence(self):
-    #     """Tests if to_dict has __class__ key/value pair."""
-    #     self.assertIn("__class__", BaseModel().to_dict())
-
-    def test_BaseModel_to_dict_created_at_string(self):
-        """Tests if to_dict created_at key/value is string type."""
-        self.assertEqual(type(BaseModel().to_dict()['created_at']), str)
-
-    def test_BaseModel_to_dict_updated_at_string(self):
-        """Tests if to_dict updated_at key/value is string type."""
-        self.assertEqual(type(BaseModel().to_dict()['updated_at']), str)
-
-    def test_BaseModel_save_too_many_args(self):
-        """Tests to_dict with expected failure."""
-        with self.assertRaises(TypeError):
-            BaseModel().to_dict(42)
+    def test_str(self):
+        """ Test that str correct """
+        obj = BaseModel()
+        s = "[BaseModel] ({}) {}".format(obj.id, obj.__dict__)
+        self.assertEqual(s, str(obj))
+    """
+        Method save()
+    """
+    @patch('models.storage')
+    def testA_save(self, mock):
+        """ Test that str correct """
+        obj = BaseModel()
+        before = obj.updated_at
+        before2 = obj.created_at
+        obj.save()
+        n1 = obj.created_at
+        n2 = obj.updated_at
+        self.assertNotEqual(before, n2)
+        self.assertEqual(before2, n1)
