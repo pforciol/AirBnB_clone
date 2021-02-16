@@ -3,7 +3,7 @@
 import cmd
 import shlex
 import models
-import re
+import json
 
 from models.base_model import BaseModel
 from models.amenity import Amenity
@@ -164,7 +164,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             print(self.errors["wrongClass"])
 
-    def do_count(self, arg):
+    def count(self, arg):
         """
         Prints the number of instances of a class.
             usage: count <class_name>
@@ -181,15 +181,22 @@ class HBNBCommand(cmd.Cmd):
 
     def default(self, line):
         """Handles the default behaviour."""
-        try:
-            cmd = line.split('.', 1)
-            class_name = cmd[0]
-            args = cmd[1].strip("()").split('(')
-            func = str("self.do_" + args[0])
-            params = class_name + ' ' + \
-                args[1].replace(',', '') if len(args) > 1 else class_name
-            eval(func)(params)
-        except Exception as e:
+        funcs = {"all": self.do_all, "count": self.count, "show": self.do_show,
+                 "destroy": self.do_destroy, "update": self.do_update}
+        cmd = line.split('.', 1)
+        class_name = cmd[0]
+        args = cmd[1].strip("()").split('(')
+        if args[0] in funcs:
+            func = funcs[args[0]]
+            params = class_name + ' '
+            if len(args) > 1:
+                if args[0] == "update":
+                    params += args[1].replace(',', '').replace(':', '')
+                    params = params.replace('{', '').replace('}', '')
+                else:
+                    params += args[1].replace(',', '')
+            func(params)
+        else:
             print("*** Unknown syntax: {}".format(line))
 
 
