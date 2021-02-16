@@ -5,7 +5,6 @@
 import unittest
 from datetime import datetime
 from models.base_model import BaseModel
-import re
 from unittest.mock import patch
 
 
@@ -122,13 +121,6 @@ class TestBase_model(unittest.TestCase):
     """
         kwargs
     """
-    """
-    def test_is_kwargs_instance(self):
-        obj = BaseModel()
-        save_dict = obj.to_dict()
-        new_obj = BaseModel(**save_dict)
-        self.assertTrue(save_dict == new_obj.to_dict())
-    """
 
     def test_is_kwargs_created_at_date_object(self):
         """ Test that kwargs is instance created_at to date object """
@@ -136,14 +128,7 @@ class TestBase_model(unittest.TestCase):
         save_dict = obj.to_dict()
         new_obj = BaseModel(**save_dict)
         self.assertEqual(type(new_obj.created_at), datetime)
-    """
-    def test_is_kwargs_ignore_one_attribute(self):
-        obj = BaseModel()
-        save_dict = obj.to_dict()
-        new_obj = BaseModel(**save_dict)
-        with self.assertRaises(AttributeError):
-            new_obj.__class__
-    """
+
     """
     Method to_dict()
     """
@@ -185,6 +170,7 @@ class TestBase_model(unittest.TestCase):
         obj = BaseModel()
         s = "[BaseModel] ({}) {}".format(obj.id, obj.__dict__)
         self.assertEqual(s, str(obj))
+
     """
         Method save()
     """
