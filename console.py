@@ -3,7 +3,7 @@
 import cmd
 import shlex
 import models
-import json
+import ast
 
 from models.base_model import BaseModel
 from models.amenity import Amenity
@@ -190,9 +190,14 @@ class HBNBCommand(cmd.Cmd):
             func = funcs[args[0]]
             params = class_name + ' '
             if len(args) > 1:
-                if args[0] == "update":
-                    params += args[1].replace(',', '').replace(':', '')
-                    params = params.replace('{', '').replace('}', '')
+                if args[0] == "update" and args[1][-1] == '}':
+                    str_dict = args[1].split(' ', 1)[1]
+                    upd_dict = ast.literal_eval(str_dict)
+                    params += args[1].split(',', 1)[0] + ' '
+                    for k, v in upd_dict.items():
+                        fparams = '{} "{}" "{}"'.format(params, str(k), str(v))
+                        func(fparams)
+                    return
                 else:
                     params += args[1].replace(',', '')
             func(params)
