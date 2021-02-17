@@ -185,7 +185,9 @@ class HBNBCommand(cmd.Cmd):
                  "destroy": self.do_destroy, "update": self.do_update}
         cmd = line.split('.', 1)
         class_name = cmd[0]
-        args = cmd[1].strip("()").split('(')
+        args = [None]
+        if len(cmd) > 1:
+            args = cmd[1].strip("()").split('(')
         if args[0] in funcs:
             func = funcs[args[0]]
             params = class_name + ' '
