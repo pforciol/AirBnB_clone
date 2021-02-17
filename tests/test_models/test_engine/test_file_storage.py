@@ -93,8 +93,8 @@ class TestFileStorage(unittest.TestCase):
         FileStorage._FileStorage__objects = save
 
     def test_save(self):
-        """Test that save properly saves objects to file.json"""
-        os.remove("file.json")
+        """Test that save properly saves objects to storage.json"""
+        os.remove("storage.json")
         storage = FileStorage()
         new_dict = {}
         for key, value in classes.items():
@@ -108,6 +108,6 @@ class TestFileStorage(unittest.TestCase):
         for key, value in new_dict.items():
             new_dict[key] = value.to_dict()
         string = json.dumps(new_dict)
-        with open("file.json", "r") as f:
+        with open("storage.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
