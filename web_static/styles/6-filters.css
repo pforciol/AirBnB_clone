@@ -38,7 +38,6 @@
 .filters .locations h3,
 .filters .amenities h3 {
   font-weight: 600;
-  font-size: 16px;
   margin: 0;
   padding-left: 50px;
 }
@@ -56,11 +55,14 @@
 }
 
 .filters .popover {
-  display: block;
+  display: none;
   position: absolute;
   background-color: #fafafa;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
   width: inherit;
   top: 100%;
+  z-index: 1;
 }
 
 .filters .popover h2 {
@@ -70,13 +72,14 @@
 
 .filters ul.popover {
   margin: 0;
+  margin-left: -1px;
   padding: 30px 0px;
 }
 
 .filters .popover li {
   list-style: none;
+  padding: 2px 0px;
   padding-left: 25px;
-  line-height: 1.5;
 }
 
 .filters .popover ul {
